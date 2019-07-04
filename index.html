@@ -36,17 +36,23 @@
         </div>
         <!-- About Modal -->
         <div class="modal fade" tabindex="-1" id="about-modal" role="dialog">
-            <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+            <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">French Aggregator <script>let appVersion = require('electron').remote.app.getVersion(); document.write(appVersion)</script></h5>
+                        <h5 class="modal-title">French Aggregator</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
-                        <p>Aggregator of several useful sites for learning french.</p>
-                        <p>Developed by João Neto.</p>
+                            <blockquote class="blockquote text-center">
+                                <p class="mb-0">Utilisez pour avoir de bonnes études.</p>
+                            </blockquote>
+                            <p class="text-center">"French Aggregator" is a software to use of several useful sites for learning french.</p>
+                            <p class="text-center">Developed by João Neto.</p>
+                            <p class="text-center"><a class="btn btn-link open-in-browser"
+                                    href="https://github.com/jfmedeirosneto/FrenchAggregator" target="_blank"
+                                    role="button">https://github.com/jfmedeirosneto/FrenchAggregator</a></p>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -63,6 +69,10 @@
         <script type="text/javascript">
             // electron import
             const { shell } = require('electron');
+            const app = require('electron').remote.app;
+
+            // package json
+            const packagejson = require('./package.json');
 
             // Sites Json
             const sitesjson = require('./sites.json');
@@ -100,7 +110,7 @@
                         '</div>';
                     $("#sitesTabContent").append(htmltab);
 
-                    //Open External Click
+                    // Open External Click
                     $(`#${divid}-webview-link`).on('click', function (evt) {
                         evt.preventDefault();
                         shell.openExternal(evt.target.href);
@@ -108,14 +118,25 @@
 
                     // Html webview did-finish-load
                     $(`#${divid}-webview`).on('did-finish-load', function () {
-                        let webview = $(this)[0];
-                        //Scroll em zero
+                        //let webview = $(this)[0];
+                        //Set zero to scroll
                         //webview.executeJavaScript("document.querySelector('body:first-child').scrollTop=0");
                     });
                 });                
 
                 // Select first tab
                 $('#sitesTab li:first-child a').tab('show');
+
+                // Open External Click
+                $('.open-in-browser').click((event) => {
+                    event.preventDefault();
+                    shell.openExternal(event.target.href);
+                });
+
+                // Versap do app
+                let apptitle = `${packagejson.description} ${packagejson.version}`;
+                document.title = apptitle;
+                $('#about-modal').find('.modal-title').text(apptitle);
             });
 
             // Form submit

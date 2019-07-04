@@ -1,6 +1,6 @@
 {
   "name": "frenchaggregator",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "French Aggregator",
   "main": "main.js",
   "scripts": {
