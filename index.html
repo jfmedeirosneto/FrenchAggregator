@@ -96,7 +96,7 @@
                         '<div class="container-fluid">' +
                         '<div class="row">' +
                         '<div class="col-12">' +
-                        `<a id="${divid}-webview-link" href="./blank.html" target="_blank" class="btn btn-primary btn-sm disabled" role="button" aria-disabled="true">Open In External Browser</a>` +
+                        `<a id="${divid}-webview-link" href="./blank.html" target="_blank" class="btn btn-primary btn-sm open-in-browser disabled" role="button" aria-disabled="true">Open In External Browser</a>` +
                         '</div>' +
                         '</div>' +
                         '<div class="row mt-3">' +
@@ -109,12 +109,6 @@
                         '</div>' +
                         '</div>';
                     $("#sitesTabContent").append(htmltab);
-
-                    // Open External Click
-                    $(`#${divid}-webview-link`).on('click', function (evt) {
-                        evt.preventDefault();
-                        shell.openExternal(evt.target.href);
-                    });
 
                     // Html webview did-finish-load
                     $(`#${divid}-webview`).on('did-finish-load', function () {
