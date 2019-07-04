@@ -9,6 +9,11 @@
         "divid": "dictionnaire",
         "name": "Dictionnaire"
     },
+    "www.larousse.fr": {
+        "url": "https://www.larousse.fr/dictionnaires/francais/${searchword}/",
+        "divid": "larousse",
+        "name": "Larousse"
+    },    
     "translate.google.com.br": {
         "url": "https://translate.google.com.br/?hl=fr#view=home&op=translate&sl=fr&tl=en&text=${searchword}",
         "divid": "google",
