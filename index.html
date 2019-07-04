@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <title>French Aggregator</title>
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="./contents/bootstrap/4.3.1/css/bootstrap.min.css" />
+    </head>
+    <body>
+        <!-- Main content -->
+        <div class="container-fluid">
+            <div class="row justify-content-between align-items-center mt-3">
+                <div class="col-6">
+                    <form action="" method="post" id="form">
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="searchInput" aria-describedby="searchHelp"
+                                placeholder="Enter search">
+                            <small id="searchHelp" class="form-text text-muted">Search word in french.</small>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm">Search</button>
+                    </form>
+                </div>
+                <div class="col-2">
+                    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#about-modal">About Software</button>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-12">
+                    <ul class="nav nav-tabs" id="sitesTab" role="tablist">
+                    </ul>
+                    <div class="tab-content" id="sitesTabContent">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- About Modal -->
+        <div class="modal fade" tabindex="-1" id="about-modal" role="dialog">
+            <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">French Aggregator <script>let appVersion = require('electron').remote.app.getVersion(); document.write(appVersion)</script></h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Aggregator of several useful sites for learning french.</p>
+                        <p>Developed by João Neto.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Bootstrap Optional JavaScript -->
+        <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+        <script>let $ = require('jquery');</script>
+        <script>require('popper.js');</script>
+        <script>require('bootstrap');</script>
+        <!-- Application Script -->
+        <script type="text/javascript">
+            // electron import
+            const { shell } = require('electron');
+
+            // Sites Json
+            const sitesjson = require('./sites.json');
+
+            // Document ready
+            $(document).ready(function () {
+                // Interate sites
+                Object.keys(sitesjson).forEach(function(key) {
+                    // Site data
+                    let divid = sitesjson[key].divid;
+                    let name = sitesjson[key].name;
+
+                    // Html nav
+                    let htmlnav = '<li class="nav-item">' +
+                        `<a class="nav-link" id="${divid}-tab" data-toggle="tab" href="#${divid}" role="tab" aria-controls="${divid}" aria-selected="false">${name}</a>` +
+                        '</li>';
+                    $("#sitesTab").append(htmlnav);
+
+                    // Html tab with webview
+                    let htmltab = `<div class="tab-pane fade border p-3" id="${divid}" role="tabpanel" aria-labelledby="${divid}-tab">` +
+                        '<div class="container-fluid">' +
+                        '<div class="row">' +
+                        '<div class="col-12">' +
+                        `<a id="${divid}-webview-link" href="./blank.html" target="_blank" class="btn btn-primary btn-sm disabled" role="button" aria-disabled="true">Open In External Browser</a>` +
+                        '</div>' +
+                        '</div>' +
+                        '<div class="row mt-3">' +
+                        '<div class="col-12">' +
+                        '<div class="embed-responsive embed-responsive-1by1">' +
+                        `<webview id="${divid}-webview" class="embed-responsive-item" src="./blank.html"></webview>` +
+                        '</div>' +
+                        '</div>' +
+                        '</div>' +
+                        '</div>' +
+                        '</div>';
+                    $("#sitesTabContent").append(htmltab);
+
+                    //Open External Click
+                    $(`#${divid}-webview-link`).on('click', function (evt) {
+                        evt.preventDefault();
+                        shell.openExternal(evt.target.href);
+                    });
+
+                    // Html webview did-finish-load
+                    $(`#${divid}-webview`).on('did-finish-load', function () {
+                        let webview = $(this)[0];
+                        //Scroll em zero
+                        //webview.executeJavaScript("document.querySelector('body:first-child').scrollTop=0");
+                    });
+                });                
+
+                // Select first tab
+                $('#sitesTab li:first-child a').tab('show');
+            });
+
+            // Form submit
+            $('#form').submit(function (evt) {
+                evt.preventDefault();
+                let searchword = $('#searchInput').val();
+
+                // Interate sites
+                Object.keys(sitesjson).forEach(function(key) {
+                    // Site data
+                    let url = eval('`' + sitesjson[key].url + '`;');
+                    let divid = sitesjson[key].divid;
+
+                    // Activate webview link
+                    let webviewlink = $(`#${divid}-webview-link`);
+                    webviewlink.removeClass('disabled');
+                    webviewlink.prop('href', url);
+
+                    // Html webview loadURL and set link URL
+                    $(`#${divid}-webview`)[0].loadURL(url);
+                });
+            });
+        </script>
+    </body>
+</html>

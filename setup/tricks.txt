@@ -1,0 +1,9 @@
+
+
+npm install --save-dev electron
+
+npm install --save-dev ***
+
+npm install electron-packager -g
+
+electron-packager "C:\Projetos\ElectronJS\French Aggregator" "French Aggregator" --platform=win32 --arch=x64 --electron-version=5.0.6 --asar --overwrite --no-prune

@@ -1,0 +1,17 @@
+{
+  "name": "frenchaggregator",
+  "version": "1.0.1",
+  "description": "French Aggregator",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "Joao Neto",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^5.0.6",
+    "jquery": "^3.4.1",
+    "bootstrap": "^4.3.1",
+    "popper.js": "^1.15.0"
+  }
+}
