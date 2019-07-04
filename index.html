@@ -102,7 +102,7 @@
                         '<div class="row mt-3">' +
                         '<div class="col-12">' +
                         '<div class="embed-responsive embed-responsive-1by1">' +
-                        `<webview id="${divid}-webview" class="embed-responsive-item" src="./blank.html"></webview>` +
+                        `<webview id="${divid}-webview" class="embed-responsive-item" style="display:inline-flex;" src="./blank.html"></webview>` +
                         '</div>' +
                         '</div>' +
                         '</div>' +
@@ -114,7 +114,12 @@
                     $(`#${divid}-webview`).on('did-finish-load', function () {
                         //let webview = $(this)[0];
                         //Set zero to scroll
-                        //webview.executeJavaScript("document.querySelector('body:first-child').scrollTop=0");
+                        //webview.executeJavaScript("document.querySelector('body:first-child').scrollTop=0;");
+                    });
+
+                    // Html webview new-window prevent
+                    $(`#${divid}-webview`).on('new-window', function (evt) {
+                        evt.preventDefault();
                     });
                 });                
 
