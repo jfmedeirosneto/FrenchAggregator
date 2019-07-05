@@ -1,31 +1,37 @@
 {
     "www.collinsdictionary.com": {
         "url": "https://www.collinsdictionary.com/dictionary/french-english/${searchword}",
+        "spaceconv": "+",
         "divid": "translate",
         "name": "Translate"
     },
     "www.linguee.fr": {
         "url": "https://www.linguee.fr/francais-anglais/search?query=${searchword}",
+        "spaceconv": "+",
         "divid": "dictionnaire",
         "name": "Dictionnaire"
     },
     "www.larousse.fr": {
         "url": "https://www.larousse.fr/dictionnaires/francais/${searchword}/",
+        "spaceconv": "%20",
         "divid": "larousse",
         "name": "Larousse"
     },    
     "translate.google.com.br": {
         "url": "https://translate.google.com.br/?hl=fr#view=home&op=translate&sl=fr&tl=en&text=${searchword}",
+        "spaceconv": "%20",
         "divid": "google",
         "name": "Google"
     },
     "conjugator.reverso.net": {
         "url": "http://conjugator.reverso.net/conjugation-french-verb-${searchword}.html",
+        "spaceconv": "%20",
         "divid": "conjugation",
         "name": "Conjugation"
     },
     "forvo.com": {
         "url": "https://forvo.com/word/${searchword}/#fr",
+        "spaceconv": "_",
         "divid": "pronunciation",
         "name": "Pronunciation"
     }

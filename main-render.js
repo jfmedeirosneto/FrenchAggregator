@@ -70,10 +70,13 @@ $(document).ready(function () {
 // Form submit
 $('#formSearch').submit(function (evt) {
     evt.preventDefault();
-    let searchword = $('#searchInput').val();
+    let searchInput = $('#searchInput').val();
 
     // Interate sites
     Object.keys(sitesjson).forEach(function(key) {
+        // Search word with whitespace replaced by site specific char
+        let searchword = searchInput.trim().replace(/\s/g, sitesjson[key].spaceconv);
+
         // Site data
         let url = eval('`' + sitesjson[key].url + '`;');
         let divid = sitesjson[key].divid;
