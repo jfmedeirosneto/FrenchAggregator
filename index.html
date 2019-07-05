@@ -12,30 +12,36 @@
         <div class="container-fluid">
             <div class="row justify-content-between align-items-center mt-3">
                 <div class="col-6">
-                    <form action="" method="post" id="form">
-                        <div class="form-group">
-                            <input type="text" class="form-control" id="searchInput" aria-describedby="searchHelp"
-                                placeholder="Enter search">
-                            <small id="searchHelp" class="form-text text-muted">Search word in french.</small>
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-sm">Search</button>
+                    <form id="formSearch" class="form-inline float-left" method="post">
+                        <input id="searchInput" class="form-control mr-sm-2" type="search" placeholder="Enter search"
+                            aria-label="Enter search">
+                        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
                     </form>
                 </div>
                 <div class="col-2">
-                    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#about-modal">About Software</button>
+                    <div class="dropdown">
+                        <button id="dropdownMenu" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">
+                            Menu
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenu">
+                            <button class="dropdown-item" type="button">History</button>
+                            <button class="dropdown-item" type="button" data-toggle="modal" data-target="#about-modal">About Software</button>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="row mt-3">
                 <div class="col-12">
-                    <ul class="nav nav-tabs" id="sitesTab" role="tablist">
+                    <ul id="sitesTab" class="nav nav-tabs" role="tablist">
                     </ul>
-                    <div class="tab-content" id="sitesTabContent">
+                    <div id="sitesTabContent" class="tab-content">
                     </div>
                 </div>
             </div>
         </div>
         <!-- About Modal -->
-        <div class="modal fade" tabindex="-1" id="about-modal" role="dialog">
+        <div id="about-modal" class="modal fade" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -87,7 +93,7 @@
 
                     // Html nav
                     let htmlnav = '<li class="nav-item">' +
-                        `<a class="nav-link" id="${divid}-tab" data-toggle="tab" href="#${divid}" role="tab" aria-controls="${divid}" aria-selected="false">${name}</a>` +
+                        `<a id="${divid}-tab" class="nav-link" data-toggle="tab" href="#${divid}" role="tab" aria-controls="${divid}" aria-selected="false">${name}</a>` +
                         '</li>';
                     $("#sitesTab").append(htmlnav);
 
@@ -139,7 +145,7 @@
             });
 
             // Form submit
-            $('#form').submit(function (evt) {
+            $('#formSearch').submit(function (evt) {
                 evt.preventDefault();
                 let searchword = $('#searchInput').val();
 
