@@ -26,9 +26,7 @@ function createWindow() {
     // Check debug
     const argv = process.argv.join()
     const isDebug = argv.includes('inspect') || argv.includes('debug')
-    if (isDebug) {
-        mainWindow.webContents.openDevTools()
-    } else {
+    if (isDebug == false) {
         mainWindow.removeMenu()
     }
 
