@@ -23,18 +23,16 @@ $(document).ready(function () {
         $("#sitesTab").append(htmlnav);
 
         // Html tab with webview
-        let htmltab = `<div class="tab-pane fade border p-3" id="${divid}" role="tabpanel" aria-labelledby="${divid}-tab">` +
-            '<div class="container-fluid">' +
-            '<div class="row">' +
+        let htmltab = `<div id="${divid}" class="tab-pane fade border p-1" style="height:82vh;" role="tabpanel" aria-labelledby="${divid}-tab">` +
+            '<div class="container-fluid d-flex h-100 flex-column">' +
+            '<div class="row py-2">' +
             '<div class="col-12">' +
             `<a id="${divid}-webview-link" href="./blank.html" target="_blank" class="btn btn-primary btn-sm open-in-browser disabled" role="button" aria-disabled="true">Open In External Browser</a>` +
             '</div>' +
             '</div>' +
-            '<div class="row mt-3">' +
+            '<div class="row flex-grow-1 pb-2">' +
             '<div class="col-12">' +
-            '<div class="embed-responsive embed-responsive-1by1">' +
-            `<webview id="${divid}-webview" class="embed-responsive-item" style="display:inline-flex;" src="./blank.html"></webview>` +
-            '</div>' +
+            `<webview id="${divid}-webview" style="height:100%;min-height:100%;" src="./blank.html"></webview>` +
             '</div>' +
             '</div>' +
             '</div>' +
