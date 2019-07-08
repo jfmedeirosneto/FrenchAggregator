@@ -2,11 +2,59 @@
 const { shell } = require('electron');
 const app = require('electron').remote.app;
 
+// New electron-store
+const Store = require('electron-store');
+const store = new Store();
+
+// Search history
+let searchhistory = store.get('searchhistory', []);
+
 // package json
 const packagejson = require('./package.json');
 
 // Sites Json
 const sitesjson = require('./sites.json');
+
+// Set webviews to search input
+function setWebviews(value) {
+    // Add to search history
+    addToSearchHistory(value);
+
+    // Interate sites
+    Object.keys(sitesjson).forEach(function (key) {
+        // Search word with whitespace replaced by site specific char
+        let searchword = value.trim().replace(/\s/g, sitesjson[key].spaceconv);
+
+        // Site data
+        let url = eval('`' + sitesjson[key].url + '`;');
+        let divid = sitesjson[key].divid;
+
+        // Activate webview link
+        let $webviewlink = $(`#${divid}-webview-link`);
+        $webviewlink.removeClass('disabled');
+        $webviewlink.prop('href', url);
+
+        // Html webview loadURL and set link URL
+        $(`#${divid}-webview`)[0].loadURL(url);
+    });
+}
+
+// Add to search history
+function addToSearchHistory(value) {
+    searchhistory = searchhistory.filter(function (elm) {
+        return elm !== value;
+    });
+    searchhistory.unshift(value);
+    store.set('searchhistory', searchhistory);
+}
+
+// Remove from search history
+function removeFromSearchHistory(value) {
+    searchhistory = searchhistory.filter(function (elm) {
+        return elm !== value;
+    });
+    store.set('searchhistory', searchhistory);
+}
 
 // Document ready
 $(document).ready(function () {
@@ -41,9 +89,9 @@ $(document).ready(function () {
 
         // Html webview did-finish-load
         $(`#${divid}-webview`).on('did-finish-load', function () {
-            //let webview = $(this)[0];
+            //let $webview = $(this)[0];
             //Set zero to scroll
-            //webview.executeJavaScript("document.querySelector('body:first-child').scrollTop=0;");
+            //$webview.executeJavaScript("document.querySelector('body:first-child').scrollTop=0;");
         });
 
         // Html webview new-window prevent
@@ -65,28 +113,60 @@ $(document).ready(function () {
     let apptitle = `${packagejson.description} ${packagejson.version}`;
     document.title = apptitle;
     $('#about-modal').find('.modal-title').text(apptitle);
-});
 
-// Form submit
-$('#formSearch').submit(function (evt) {
-    evt.preventDefault();
-    let searchInput = $('#searchInput').val();
-
-    // Interate sites
-    Object.keys(sitesjson).forEach(function(key) {
-        // Search word with whitespace replaced by site specific char
-        let searchword = searchInput.trim().replace(/\s/g, sitesjson[key].spaceconv);
-
-        // Site data
-        let url = eval('`' + sitesjson[key].url + '`;');
-        let divid = sitesjson[key].divid;
-
-        // Activate webview link
-        let webviewlink = $(`#${divid}-webview-link`);
-        webviewlink.removeClass('disabled');
-        webviewlink.prop('href', url);
-
-        // Html webview loadURL and set link URL
-        $(`#${divid}-webview`)[0].loadURL(url);
+    // Form submit
+    $('#formSearch').submit(function (evt) {
+        evt.preventDefault();
+        let searchinputvalue = $('#searchInput').val();
+        
+        // Set webviews
+        setWebviews(searchinputvalue);
     });
+
+    // Search history is opening
+    $('#history-modal').on('show.bs.modal', function (e) {
+        // History search list group
+        let $listgroup = $(this).find("#history-list");
+        $listgroup.empty();
+
+        searchhistory.forEach(function(searchInput){
+            let historyaction = `<a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" title="Open Hitory Item" data-action="open" data-value="${searchInput}">${searchInput}` +
+                '<span class="pull-right">' +
+                `<button class="btn btn-sm btn-outline-info" title="Delete Hitory Item" data-action="delete" data-value="${searchInput}"><i class="far fa-trash-alt"></i> Delete</button>` +
+                '</span>' +
+                '</a>';
+            $listgroup.append(historyaction);
+        });
+
+        // History click
+        $listgroup.find('a.list-group-item').click((event) => {
+            event.preventDefault();
+            let $target = $(event.target);
+            let historyaction = $target.data('action');
+            let historyvalue = $target.data('value');
+
+            // Verify action
+            if (historyaction === 'open') {
+                // Clear history search list group
+                $listgroup.find('a.list-group-item').unbind('click');
+                $listgroup.empty();
+
+                // Close history modal
+                $('#history-modal').modal('hide');
+
+                // Set searchInput
+                $('#searchInput').val(historyvalue);
+
+                // Set webviews
+                setWebviews(historyvalue);
+            } else if (historyaction === 'delete') {
+                // Remove from search history
+                removeFromSearchHistory(historyvalue)
+
+                // Remove a element from DOM
+                $target.closest('a').remove();
+            }
+        });
+    })
+
 });
