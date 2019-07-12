@@ -15,6 +15,9 @@ const packagejson = require('./package.json');
 // Sites Json
 const sitesjson = require('./sites.json');
 
+// French words
+const frenchwords = require('./french-words.json');
+
 // Set webviews to search input
 function setWebviews(value) {
     // Add to search history
@@ -114,10 +117,22 @@ $(document).ready(function () {
     document.title = apptitle;
     $('#about-modal').find('.modal-title').text(apptitle);
 
+    // French words autocomplete
+    $('#searchInput').autocomplete({
+        source: frenchwords,
+        minLength: 2,
+        select: function( event, ui ) {
+            $('#formSearch').submit();
+        }
+    });
+
     // Form submit
     $('#formSearch').submit(function (evt) {
         evt.preventDefault();
         let searchinputvalue = $('#searchInput').val();
+
+        // Close autocomplete
+        $('#searchInput').autocomplete('close');
         
         // Set webviews
         setWebviews(searchinputvalue);

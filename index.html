@@ -4,10 +4,10 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <title>French Aggregator</title>
-        <!-- Bootstrap CSS -->
-        <link rel="stylesheet" href="./contents/bootstrap/4.3.1/css/bootstrap.min.css" />
-        <!-- Font Awesome  -->
-        <link rel="stylesheet" href="./contents/fontawesome-free-5.9.0-web/css/all.min.css">
+        <link rel="stylesheet" href="./node_modules/bootstrap/dist/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="./node_modules/@fortawesome/fontawesome-free/css/all.min.css">
+        <link rel="stylesheet" href="./node_modules/jquery-ui-dist/jquery-ui.min.css">
+        <!-- Application CSS -->
         <style>
             body {
                 overflow-x: hidden;
@@ -93,11 +93,10 @@
                 </div>
             </div>
         </div>
-        <!-- Bootstrap Optional JavaScript -->
-        <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-        <script>let $ = require('jquery');</script>
+        <script>let $ = jQuery = require('jquery');</script>
         <script>require('popper.js');</script>
         <script>require('bootstrap');</script>
+        <script src="./node_modules/jquery-ui-dist/jquery-ui.min.js"></script>
         <!-- Application Script -->
         <script type="application/javascript" src="./main-render.js"></script>
     </body>
