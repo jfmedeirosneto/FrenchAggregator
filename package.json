@@ -15,6 +15,7 @@
     "popper.js": "1.15.0",
     "electron-store": "4.0.0",
     "@fortawesome/fontawesome-free": "5.9.0",
-    "jquery-ui-dist": "1.12.1"
+    "jquery-ui-dist": "1.12.1",
+    "compare-versions": "3.5.0"
   }
 }

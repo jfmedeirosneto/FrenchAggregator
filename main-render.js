@@ -18,6 +18,9 @@ const sitesjson = require('./sites.json');
 // French words
 const frenchwords = require('./french-words.json');
 
+// Compare semantic versions
+const compareVersions = require('compare-versions');
+
 // Set webviews to search input
 function setWebviews(value) {
     // Add to search history
@@ -112,10 +115,22 @@ $(document).ready(function () {
         shell.openExternal(event.target.href);
     });
 
-    // Versap do app
+    // App version
     let apptitle = `${packagejson.description} ${packagejson.version}`;
     document.title = apptitle;
     $('#about-modal').find('.modal-title').text(apptitle);
+
+    // Github last release
+    $.getJSON('https://api.github.com/repos/jfmedeirosneto/FrenchAggregator/releases/latest', function (data) {
+        let githubversion = data.tag_name.substring(1);
+        let appversion = packagejson.version;
+        // Verify new available version        
+        if (compareVersions.compare(githubversion, appversion, '>')) {
+            $('#update-current-version').text(`Current Version: ${appversion}`);
+            $('#update-avaliable-version').text(`Available Version: ${githubversion}`);
+            $('#update-modal').modal('show');
+        }
+    });
 
     // French words autocomplete
     $('#searchInput').autocomplete({
