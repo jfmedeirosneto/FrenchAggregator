@@ -12,6 +12,9 @@
             body {
                 overflow-x: hidden;
             }
+            button.disabled {
+                pointer-events: none;
+            }
         </style>
     </head>
     <body>
@@ -118,7 +121,7 @@
                 </div>
             </div>
         </div>
-        <script>let $ = jQuery = require('jquery');</script>
+        <script>window.$ = window.jQuery = require('jquery');</script>
         <script>require('popper.js');</script>
         <script>require('bootstrap');</script>
         <script src="./node_modules/jquery-ui-dist/jquery-ui.min.js"></script>

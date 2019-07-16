@@ -40,6 +40,10 @@ function setWebviews(value) {
         $webviewlink.removeClass('disabled');
         $webviewlink.prop('href', url);
 
+        // Activate back and foward buttons
+        $(`#${divid}-back-button`).removeClass('disabled');
+        $(`#${divid}-forward-button`).removeClass('disabled');
+
         // Html webview loadURL and set link URL
         $(`#${divid}-webview`)[0].loadURL(url);
     });
@@ -81,7 +85,13 @@ $(document).ready(function () {
             '<div class="container-fluid d-flex h-100 flex-column">' +
             '<div class="row py-2">' +
             '<div class="col-12">' +
-            `<a id="${divid}-webview-link" href="./blank.html" target="_blank" class="btn btn-primary btn-sm open-in-browser disabled" role="button" aria-disabled="true">Open In External Browser</a>` +
+            '<div class="btn-group btn-group-sm mr-2" role="group" aria-label="first group">' +
+            `<a id="${divid}-webview-link" role="button" href="./blank.html" target="_blank" class="btn btn-primary open-in-browser disabled" title="Open In External Browser" aria-disabled="true">Open In External Browser</a>` +
+            '</div>' +
+            '<div class="btn-group btn-group-sm" role="group" aria-label="second group">' +
+            `<button id="${divid}-back-button" type="button" class="btn btn-outline-info disabled" title="Back" data-value="${divid}-webview"><i class="fas fa-arrow-left"></i></button>` +
+            `<button id="${divid}-forward-button" type="button" class="btn btn-outline-info disabled" title="Forward" data-value="${divid}-webview"><i class="fas fa-arrow-right"></i></button>` +
+            '</div>' +
             '</div>' +
             '</div>' +
             '<div class="row flex-grow-1 pb-2">' +
@@ -92,19 +102,35 @@ $(document).ready(function () {
             '</div>' +
             '</div>';
         $("#sitesTabContent").append(htmltab);
-
-        // Html webview did-finish-load
-        $(`#${divid}-webview`).on('did-finish-load', function () {
-            //let $webview = $(this)[0];
-            //Set zero to scroll
-            //$webview.executeJavaScript("document.querySelector('body:first-child').scrollTop=0;");
-        });
-
-        // Html webview new-window prevent
-        $(`#${divid}-webview`).on('new-window', function (evt) {
-            evt.preventDefault();
-        });
     });                
+
+    // Html webview did-finish-load
+    $('webview[id$=webview]').on('did-finish-load', function () {
+        //let webview = $(this)[0];
+        //Set zero to scroll
+        //webview.executeJavaScript("document.querySelector('body:first-child').scrollTop=0;");
+    });
+
+    // Html webview new-window prevent
+    $('webview[id$=webview]').on('new-window', function (evt) {
+        evt.preventDefault();
+    });
+
+    // Html webview history back button
+    $('button[id$=back-button]').click((event) => {
+        let $target = $(event.target).is('button') ? $(event.target) : $(event.target).parent();
+        let webviewid = $target.data('value');
+        let webview = $(`#${webviewid}`)[0];
+        webview.goBack();
+    });
+
+    // Html webview history forward button
+    $('button[id$=forward-button]').click((event) => {
+        let $target = $(event.target).is('button') ? $(event.target) : $(event.target).parent();
+        let webviewid = $target.data('value');
+        let webview = $(`#${webviewid}`)[0];
+        webview.goForward();
+    });
 
     // Select first tab
     $('#sitesTab li:first-child a').tab('show');
@@ -145,12 +171,12 @@ $(document).ready(function () {
     $('#formSearch').submit(function (evt) {
         evt.preventDefault();
         let searchinputvalue = $('#searchInput').val();
-
-        // Close autocomplete
-        $('#searchInput').autocomplete('close');
         
         // Set webviews
         setWebviews(searchinputvalue);
+
+        // Close autocomplete
+        $('#searchInput').autocomplete('close');
     });
 
     // Search history is opening
@@ -162,7 +188,7 @@ $(document).ready(function () {
         searchhistory.forEach(function(searchInput){
             let historyaction = `<a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" title="Open Hitory Item" data-action="open" data-value="${searchInput}">${searchInput}` +
                 '<span class="pull-right">' +
-                `<button class="btn btn-sm btn-outline-info" title="Delete Hitory Item" data-action="delete" data-value="${searchInput}"><i class="far fa-trash-alt"></i> Delete</button>` +
+                `<button type="button" class="btn btn-sm btn-outline-info" title="Delete Hitory Item" data-action="delete" data-value="${searchInput}"><i class="far fa-trash-alt"></i> Delete</button>` +
                 '</span>' +
                 '</a>';
             $listgroup.append(historyaction);
@@ -189,6 +215,9 @@ $(document).ready(function () {
 
                 // Set webviews
                 setWebviews(historyvalue);
+
+                // Close autocomplete
+                $('#searchInput').autocomplete('close');
             } else if (historyaction === 'delete') {
                 // Remove from search history
                 removeFromSearchHistory(historyvalue)
@@ -197,6 +226,6 @@ $(document).ready(function () {
                 $target.closest('a').remove();
             }
         });
-    })
+    });
 
 });
