@@ -1,14 +1,13 @@
-const { app, BrowserWindow } = require('electron')
+const { app, BrowserWindow, webContents } = require('electron')
 const fs = require('fs')
+const path = require('path')
 
-// Mantém a referência global do objeto da janela.
-// se você não fizer isso,
-// a janela será fechada automaticamente
-// quando o objeto JavaScript for coletado como lixo.
+// Keep a global reference of the window object, if you don't, the window will
+// be closed automatically when the JavaScript object is garbage collected
 let mainWindow
 
 function createWindow() {
-    // Criar uma janela de navegação.
+    // Create the browser window
     mainWindow = new BrowserWindow({
         width: 1024,
         height: 800,
@@ -19,7 +18,7 @@ function createWindow() {
             webviewTag: true
         }
     })
-    mainWindow.once('ready-to-show', function () {
+    mainWindow.once('ready-to-show', () => {
         mainWindow.show()
     })
 
@@ -30,27 +29,48 @@ function createWindow() {
         mainWindow.removeMenu()
     }
 
-    // and load the index.html of the app.
+    // And load the index.html of the app
     mainWindow.loadFile('index.html')
 
-    // Emitido quando a janela é fechada.
+    // Emitted when the window is going to be closed
+    mainWindow.on('close', () => {
+        // On close clear all data of app and web contents
+        webContents.getAllWebContents().forEach(contents => {
+            contents.clearHistory()
+            contents.session.clearCache(() => { })
+            contents.session.clearStorageData({
+                storages: [
+                    'appcache',
+                    'filesystem',
+                    'indexdb',
+                    'localstorage',
+                    'shadercache',
+                    'websql',
+                    'serviceworkers',
+                    'cachestorage'
+                ]
+            }, () => { })
+        })
+    })
+
+    // Emitted when the window is closed
     mainWindow.on('closed', () => {
-        // Elimina a referência do objeto da janela, geralmente você iria armazenar as janelas
-        // em um array, se seu app suporta várias janelas, este é o momento
-        // quando você deve excluir o elemento correspondente.
+        // Dereference the window object, usually you would store windows
+        // in an array if your app supports multi windows, this is the time
+        // when you should delete the corresponding element
         mainWindow = null
     })
 }
 
-// Este método será chamado quando o Electron tiver finalizado
-// a inicialização e está pronto para criar a janela browser.
-// Algumas APIs podem ser usadas somente depois que este evento ocorre.
+// This method will be called when Electron has finished
+// initialization and is ready to create browser windows
+// Some APIs can only be used after this event occurs
 app.on('ready', createWindow)
 
-// Finaliza quando todas as janelas estiverem fechadas.
+// Quit when all windows are closed
 app.on('window-all-closed', () => {
-    // No macOS é comum para aplicativos e sua barra de menu 
-    // permaneçam ativo até que o usuário explicitamente encerre com Cmd + Q
+    // On macOS it is common for applications and their menu bar
+    // to stay active until the user quits explicitly with Cmd + Q
     if (process.platform !== 'darwin') {
         app.quit()
     }
@@ -58,11 +78,8 @@ app.on('window-all-closed', () => {
 
 app.on('activate', () => {
     // On macOS it's common to re-create a window in the app when the
-    // dock icon is clicked and there are no other windows open.
+    // dock icon is clicked and there are no other windows open
     if (mainWindow === null) {
         createWindow()
     }
 })
-
-// Neste arquivo, você pode incluir o resto do seu aplicativo especifico do processo
-// principal. Você também pode colocar eles em arquivos separados e requeridos-as aqui.

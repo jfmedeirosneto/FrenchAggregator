@@ -27,7 +27,7 @@ function setWebviews(value) {
     addToSearchHistory(value);
 
     // Interate sites
-    Object.keys(sitesjson).forEach(function (key) {
+    Object.keys(sitesjson).forEach(key => {
         // Search word with whitespace replaced by site specific char
         let searchword = value.trim().replace(/\s/g, sitesjson[key].spaceconv);
 
@@ -51,7 +51,7 @@ function setWebviews(value) {
 
 // Add to search history
 function addToSearchHistory(value) {
-    searchhistory = searchhistory.filter(function (elm) {
+    searchhistory = searchhistory.filter(elm => {
         return elm !== value;
     });
     searchhistory.unshift(value);
@@ -60,7 +60,7 @@ function addToSearchHistory(value) {
 
 // Remove from search history
 function removeFromSearchHistory(value) {
-    searchhistory = searchhistory.filter(function (elm) {
+    searchhistory = searchhistory.filter(elm => {
         return elm !== value;
     });
     store.set('searchhistory', searchhistory);
@@ -69,7 +69,7 @@ function removeFromSearchHistory(value) {
 // Document ready
 $(document).ready(function () {
     // Interate sites
-    Object.keys(sitesjson).forEach(function(key) {
+    Object.keys(sitesjson).forEach(key => {
         // Site data
         let divid = sitesjson[key].divid;
         let name = sitesjson[key].name;
@@ -105,15 +105,15 @@ $(document).ready(function () {
     });                
 
     // Html webview did-finish-load
-    $('webview[id$=webview]').on('did-finish-load', function () {
+    $('webview[id$=webview]').on('did-finish-load', () => {
         //let webview = $(this)[0];
         //Set zero to scroll
         //webview.executeJavaScript("document.querySelector('body:first-child').scrollTop=0;");
     });
 
     // Html webview new-window prevent
-    $('webview[id$=webview]').on('new-window', function (evt) {
-        evt.preventDefault();
+    $('webview[id$=webview]').on('new-window', event => {
+        event.preventDefault();
     });
 
     // Html webview history back button
@@ -147,7 +147,7 @@ $(document).ready(function () {
     $('#about-modal').find('.modal-title').text(apptitle);
 
     // Github last release
-    $.getJSON('https://api.github.com/repos/jfmedeirosneto/FrenchAggregator/releases/latest', function (data) {
+    $.getJSON('https://api.github.com/repos/jfmedeirosneto/FrenchAggregator/releases/latest', data => {
         let githubversion = data.tag_name.substring(1);
         let appversion = packagejson.version;
         // Verify new available version        
@@ -162,14 +162,14 @@ $(document).ready(function () {
     $('#searchInput').autocomplete({
         source: frenchwords,
         minLength: 2,
-        select: function( event, ui ) {
+        select: (event, ui) => {
             $('#formSearch').submit();
         }
     });
 
     // Form submit
-    $('#formSearch').submit(function (evt) {
-        evt.preventDefault();
+    $('#formSearch').submit( event => {
+        event.preventDefault();
         let searchinputvalue = $('#searchInput').val();
         
         // Set webviews
@@ -180,12 +180,12 @@ $(document).ready(function () {
     });
 
     // Search history is opening
-    $('#history-modal').on('show.bs.modal', function (e) {
+    $('#history-modal').on('show.bs.modal', event => {
         // History search list group
         let $listgroup = $(this).find("#history-list");
         $listgroup.empty();
 
-        searchhistory.forEach(function(searchInput){
+        searchhistory.forEach(searchInput => {
             let historyaction = `<a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" title="Open Hitory Item" data-action="open" data-value="${searchInput}">${searchInput}` +
                 '<span class="pull-right">' +
                 `<button type="button" class="btn btn-sm btn-outline-info" title="Delete Hitory Item" data-action="delete" data-value="${searchInput}"><i class="far fa-trash-alt"></i> Delete</button>` +
