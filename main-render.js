@@ -1,10 +1,14 @@
 // electron import
 const { shell } = require('electron');
 const app = require('electron').remote.app;
+const { dialog } = require('electron').remote
 
 // New electron-store
 const Store = require('electron-store');
 const store = new Store();
+
+// Node.js import
+const url = require('url');
 
 // Search history
 let searchhistory = store.get('searchhistory', []);
@@ -104,17 +108,40 @@ $(document).ready(function () {
         $("#sitesTabContent").append(htmltab);
     });                
 
-    // Html webview did-finish-load
-    $('webview[id$=webview]').on('did-finish-load', () => {
-        //let webview = $(this)[0];
-        //Set zero to scroll
-        //webview.executeJavaScript("document.querySelector('body:first-child').scrollTop=0;");
-    });
-
-    // Html webview new-window prevent
-    $('webview[id$=webview]').on('new-window', event => {
-        event.preventDefault();
-    });
+    // Add events to webview
+    // Must be added by electron.js webview object
+    $('webview[id$=webview]').each(function (index) {
+        let webview = $(this)[0];
+        // Html webview new-window event
+        webview.addEventListener('new-window', (event) => {
+            event.preventDefault();
+            // Check if user opens external link
+            dialog.showMessageBox(null,
+                {
+                    type: 'question',
+                    buttons: ['Yes', 'No'],
+                    title: 'Question',
+                    message: 'Open in external web browser?',
+                    detail: 'You clicked an external link'
+                },
+                response => {
+                    if( response === 0 ) {
+                        let protocol = url.parse(event.url).protocol;
+                        if (protocol === 'http:' || protocol === 'https:') {
+                            shell.openExternal(event.url);                            
+                        }                        
+                    }
+                    console.log(response);
+                }
+            );
+        });
+        // Webview did-finish-load event
+        webview.addEventListener('did-finish-load', () => {
+            //let webview = $(this)[0];
+            //Set zero to scroll
+            //webview.executeJavaScript("document.querySelector('body:first-child').scrollTop=0;");
+        });
+    });        
 
     // Html webview history back button
     $('button[id$=back-button]').click((event) => {
@@ -184,7 +211,6 @@ $(document).ready(function () {
         // History search list group
         let $listgroup = $(this).find("#history-list");
         $listgroup.empty();
-
         searchhistory.forEach(searchInput => {
             let historyaction = `<a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" title="Open Hitory Item" data-action="open" data-value="${searchInput}">${searchInput}` +
                 '<span class="pull-right">' +
@@ -227,5 +253,4 @@ $(document).ready(function () {
             }
         });
     });
-
 });
