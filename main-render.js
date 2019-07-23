@@ -1,57 +1,27 @@
-// electron import
+// Electron import
 const { shell } = require('electron');
 const app = require('electron').remote.app;
 const { dialog } = require('electron').remote
 
-// New electron-store
+// electron-store
 const Store = require('electron-store');
 const store = new Store();
 
-// Node.js import
+// Node.js imports
 const url = require('url');
-
-// Search history
-let searchhistory = store.get('searchhistory', []);
+const compareVersions = require('compare-versions');
 
 // package json
 const packagejson = require('./package.json');
 
-// Sites Json
+// Sites json
 const sitesjson = require('./sites.json');
 
-// French words
+// French words json
 const frenchwords = require('./french-words.json');
 
-// Compare semantic versions
-const compareVersions = require('compare-versions');
-
-// Set webviews to search input
-function setWebviews(value) {
-    // Add to search history
-    addToSearchHistory(value);
-
-    // Interate sites
-    Object.keys(sitesjson).forEach(key => {
-        // Search word with whitespace replaced by site specific char
-        let searchword = value.trim().replace(/\s/g, sitesjson[key].spaceconv);
-
-        // Site data
-        let url = eval('`' + sitesjson[key].url + '`;');
-        let divid = sitesjson[key].divid;
-
-        // Activate webview link
-        let $webviewlink = $(`#${divid}-webview-link`);
-        $webviewlink.removeClass('disabled');
-        $webviewlink.prop('href', url);
-
-        // Activate back and foward buttons
-        $(`#${divid}-back-button`).removeClass('disabled');
-        $(`#${divid}-forward-button`).removeClass('disabled');
-
-        // Html webview loadURL and set link URL
-        $(`#${divid}-webview`)[0].loadURL(url);
-    });
-}
+// Search history electron-store object
+let searchhistory = store.get('searchhistory', []);
 
 // Add to search history
 function addToSearchHistory(value) {
@@ -70,13 +40,43 @@ function removeFromSearchHistory(value) {
     store.set('searchhistory', searchhistory);
 }
 
-// Document ready
-$(document).ready(function () {
+// Set webviews to search input value
+function setWebviews(searchinputvalue) {
+    // Add to search history
+    addToSearchHistory(searchinputvalue);
+
     // Interate sites
     Object.keys(sitesjson).forEach(key => {
+        // Search word with whitespace replaced by site specific char
+        let searchword = searchinputvalue.trim().replace(/\s/g, sitesjson[key].spaceconv);
+
         // Site data
+        let url = eval('`' + sitesjson[key].url + '`;');
         let divid = sitesjson[key].divid;
-        let name = sitesjson[key].name;
+
+        // Activate webview link
+        let $webviewlink = $(`#${divid}-webview-link`);
+        $webviewlink.removeClass('disabled');
+        $webviewlink.prop('href', url);
+
+        // Activate back and foward buttons
+        $(`#${divid}-back-button`).removeClass('disabled');
+        $(`#${divid}-forward-button`).removeClass('disabled');
+
+        // Html webview loadURL and set link URL
+        let $webview = $(`#${divid}-webview`);
+        $webview.data('searchvalue', searchinputvalue);
+        $webview[0].loadURL(url);
+    });
+}
+
+// Document ready
+$(document).ready(() => {
+    // Interate sites
+    Object.keys(sitesjson).forEach(sitekey => {
+        // Site data
+        let divid = sitesjson[sitekey].divid;
+        let name = sitesjson[sitekey].name;
 
         // Html nav
         let htmlnav = '<li class="nav-item">' +
@@ -100,7 +100,7 @@ $(document).ready(function () {
             '</div>' +
             '<div class="row flex-grow-1 pb-2">' +
             '<div class="col-12">' +
-            `<webview id="${divid}-webview" style="height:100%;min-height:100%;" src="./blank.html"></webview>` +
+            `<webview id="${divid}-webview" data-sitekey="${sitekey}" data-searchvalue="" style="height:100%;min-height:100%;" preload="./webview-injected.js" src="./blank.html"></webview>` +
             '</div>' +
             '</div>' +
             '</div>' +
@@ -110,10 +110,9 @@ $(document).ready(function () {
 
     // Add events to webview
     // Must be added by electron.js webview object
-    $('webview[id$=webview]').each(function (index) {
-        let webview = $(this)[0];
+    $('webview[id$=webview]').each((index, element) => {
         // Html webview new-window event
-        webview.addEventListener('new-window', (event) => {
+        element.addEventListener('new-window', (event) => {
             event.preventDefault();
             // Check if user opens external link
             dialog.showMessageBox(null,
@@ -131,15 +130,25 @@ $(document).ready(function () {
                             shell.openExternal(event.url);                            
                         }                        
                     }
-                    console.log(response);
                 }
             );
         });
+
+        // Intercept console messages from webview
+        element.addEventListener('console-message', (event) => {
+            if( event.message.startsWith('$webview-injected$') ) {
+                console.log(event.message);
+            }
+        });
+
         // Webview did-finish-load event
-        webview.addEventListener('did-finish-load', () => {
-            //let webview = $(this)[0];
-            //Set zero to scroll
-            //webview.executeJavaScript("document.querySelector('body:first-child').scrollTop=0;");
+        element.addEventListener('did-finish-load', (event) => {
+            // Start webview injected script
+            let $webview =$(event.target);
+            let sitekey = $webview.data('sitekey');
+            let sitejsondata = sitesjson[sitekey];
+            let searchvalue = $webview.data('searchvalue');
+            event.target.send('start-webview-injected', sitejsondata, searchvalue);
         });
     });        
 
@@ -207,14 +216,14 @@ $(document).ready(function () {
     });
 
     // Search history is opening
-    $('#history-modal').on('show.bs.modal', event => {
+    $('#history-modal').on('show.bs.modal', (event) => {
         // History search list group
-        let $listgroup = $(this).find("#history-list");
+        let $listgroup = $('#history-list');
         $listgroup.empty();
-        searchhistory.forEach(searchInput => {
-            let historyaction = `<a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" title="Open Hitory Item" data-action="open" data-value="${searchInput}">${searchInput}` +
+        searchhistory.forEach((searchvalue) => {
+            let historyaction = `<a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" title="Open Hitory Item" data-action="open" data-value="${searchvalue}">${searchvalue}` +
                 '<span class="pull-right">' +
-                `<button type="button" class="btn btn-sm btn-outline-info" title="Delete Hitory Item" data-action="delete" data-value="${searchInput}"><i class="far fa-trash-alt"></i> Delete</button>` +
+                `<button type="button" class="btn btn-sm btn-outline-info" title="Delete Hitory Item" data-action="delete" data-value="${searchvalue}"><i class="far fa-trash-alt"></i> Delete</button>` +
                 '</span>' +
                 '</a>';
             $listgroup.append(historyaction);

@@ -3,42 +3,56 @@
         "url": "https://www.larousse.fr/dictionnaires/francais/${searchword}/",
         "spaceconv": "%20",
         "divid": "larousse",
+        "resultscroll": "article.BlocDefinition",
+        "resulthighlight": "article.BlocDefinition",
         "name": "Larousse Dictionary"
     },
     "www.collinsdictionary.com": {
         "url": "https://www.collinsdictionary.com/dictionary/french-english/${searchword}",
         "spaceconv": "+",
         "divid": "collins",
+        "resultscroll": "h1.entry_title",
+        "resulthighlight": "div.content",
         "name": "Collins Translation"
     },
     "www.linguee.fr": {
         "url": "https://www.linguee.fr/francais-anglais/search?query=${searchword}",
         "spaceconv": "+",
         "divid": "linguee",
+        "resultscroll": "div.exact",
+        "resulthighlight": "div.exact",
         "name": "Linguee Dictionary"
     },
     "fr.wiktionary.org": {
         "url": "https://fr.wiktionary.org/wiki/${searchword}",
         "spaceconv": "_",
         "divid": "wiktionary",
+        "resultscroll": "div.mw-parser-output",
+        "resulthighlight": "div.mw-parser-output",
         "name": "Wiktionary"
     },
     "conjugator.reverso.net": {
         "url": "http://conjugator.reverso.net/conjugation-french-verb-${searchword}.html",
         "spaceconv": "%20",
         "divid": "conjugation",
+        "resultscroll": "#ch_divConjugatorHeader",
+        "resulthighlight": "#ch_divSimple",
         "name": "Conjugation"
     },
     "forvo.com": {
         "url": "https://forvo.com/word/${searchword}",
         "spaceconv": "_",
         "divid": "pronunciation",
+        "resultscroll": "header#fr",
+        "resulthighlight": "div#language-container-fr",
         "name": "Pronunciation"
     },
     "translate.google.com.br": {
         "url": "https://translate.google.com.br/?hl=fr&op=translate&sl=fr&tl=en&text=${searchword}",
         "spaceconv": "%20",
         "divid": "google",
+        "resultscroll": "",
+        "resulthighlight": "",
         "name": "Google"
     }
 }
