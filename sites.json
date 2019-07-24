@@ -3,7 +3,7 @@
         "url": "https://www.larousse.fr/dictionnaires/francais/${searchword}/",
         "spaceconv": "%20",
         "divid": "larousse",
-        "resultscroll": "article.BlocDefinition",
+        "resultscroll": "div.header-article",
         "resulthighlight": "article.BlocDefinition",
         "name": "Larousse Dictionary"
     },
@@ -27,7 +27,7 @@
         "url": "https://fr.wiktionary.org/wiki/${searchword}",
         "spaceconv": "_",
         "divid": "wiktionary",
-        "resultscroll": "div.mw-parser-output",
+        "resultscroll": "h1.firstHeading",
         "resulthighlight": "div.mw-parser-output",
         "name": "Wiktionary"
     },
