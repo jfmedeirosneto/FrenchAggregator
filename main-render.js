@@ -40,10 +40,31 @@ function removeFromSearchHistory(value) {
     store.set('searchhistory', searchhistory);
 }
 
+// loadURL on Webview
+function loadURLWebView($webview, loadurl) {
+    // loadURL
+    $webview.data('loadurl', '');
+    $webview[0].loadURL(loadurl);
+
+    // Show loading overlay
+    let $tabpane = $webview.closest('.tab-pane');
+    $tabpane.LoadingOverlay('show', {
+        text: "Loading..."
+    });
+
+    // Hide loading overlay after 15s
+    setTimeout(() => {
+        $tabpane.LoadingOverlay('hide');
+    }, 15000);
+}
+
 // Set webviews to search input value
 function setWebviews(searchinputvalue) {
     // Add to search history
     addToSearchHistory(searchinputvalue);
+
+    // Activated tab id
+    let activatedtabid = $('div.tab-pane.active').attr('id');
 
     // Interate sites
     Object.keys(sitesjson).forEach(key => {
@@ -63,10 +84,16 @@ function setWebviews(searchinputvalue) {
         $(`#${divid}-back-button`).removeClass('disabled');
         $(`#${divid}-forward-button`).removeClass('disabled');
 
-        // Html webview loadURL and set link URL
+        // Html webview set data and loadURL
         let $webview = $(`#${divid}-webview`);
         $webview.data('searchvalue', searchinputvalue);
-        $webview[0].loadURL(url);
+        if( divid === activatedtabid ) {
+            // loadURL on Webview
+            loadURLWebView($webview, url);
+        } else {
+            // Prepare Webview to loadURL on activate tab
+            $webview.data('loadurl', url);
+        }
     });
 }
 
@@ -80,7 +107,7 @@ $(document).ready(() => {
 
         // Html nav
         let htmlnav = '<li class="nav-item">' +
-            `<a id="${divid}-tab" class="nav-link" data-toggle="tab" href="#${divid}" role="tab" aria-controls="${divid}" aria-selected="false">${name}</a>` +
+            `<a id="${divid}-tab" class="nav-link" data-toggle="tab" data-webviewid="#${divid}-webview" href="#${divid}" role="tab" aria-controls="${divid}" aria-selected="false">${name}</a>` +
             '</li>';
         $("#sitesTab").append(htmlnav);
 
@@ -100,13 +127,24 @@ $(document).ready(() => {
             '</div>' +
             '<div class="row flex-grow-1 pb-2">' +
             '<div class="col-12">' +
-            `<webview id="${divid}-webview" data-sitekey="${sitekey}" data-searchvalue="" style="height:100%;min-height:100%;" preload="./webview-injected.js" src="./blank.html"></webview>` +
+            `<webview id="${divid}-webview" data-loadurl="" data-sitekey="${sitekey}" data-searchvalue="" style="height:100%;min-height:100%;" preload="./webview-injected.js" src="./blank.html"></webview>` +
             '</div>' +
             '</div>' +
             '</div>' +
             '</div>';
         $("#sitesTabContent").append(htmltab);
-    });                
+    });
+
+    // Tab show event
+    $('#sitesTab').on('show.bs.tab', function (event) {
+        let $activetab = $(event.target);
+        let $webview = $($activetab.data('webviewid'));
+        let loadurl = $webview.data('loadurl');
+        if ((typeof loadurl !== 'undefined') && (loadurl !== '')) {
+            // Load url on Webview
+            loadURLWebView($webview, loadurl);
+        }
+    });
 
     // Add events to webview
     // Must be added by electron.js webview object
@@ -149,8 +187,14 @@ $(document).ready(() => {
             let sitejsondata = sitesjson[sitekey];
             let searchvalue = $webview.data('searchvalue');
             event.target.send('start-webview-injected', sitejsondata, searchvalue);
+
+            // Hide loading overlay
+            let $tabpane = $webview.closest('.tab-pane');
+            setTimeout(() => {
+                $tabpane.LoadingOverlay('hide');
+            }, 1000);
         });
-    });        
+    });
 
     // Html webview history back button
     $('button[id$=back-button]').click((event) => {
@@ -168,14 +212,14 @@ $(document).ready(() => {
         webview.goForward();
     });
 
-    // Select first tab
-    $('#sitesTab li:first-child a').tab('show');
-
     // Open External Click
     $('.open-in-browser').click((event) => {
         event.preventDefault();
         shell.openExternal(event.target.href);
     });
+
+    // Show first tab
+    $('#sitesTab li:first-child a').tab('show');
 
     // App version
     let apptitle = `${packagejson.description} ${packagejson.version}`;
@@ -206,13 +250,16 @@ $(document).ready(() => {
     // Form submit
     $('#formSearch').submit( event => {
         event.preventDefault();
-        let searchinputvalue = $('#searchInput').val();
+        let $searchinput = $('#searchInput');
+        let searchinputvalue = $searchinput.val();
         
         // Set webviews
         setWebviews(searchinputvalue);
 
         // Close autocomplete
-        $('#searchInput').autocomplete('close');
+        setTimeout(() => {
+            $searchinput.autocomplete('close');
+        }, 500);
     });
 
     // Search history is opening
