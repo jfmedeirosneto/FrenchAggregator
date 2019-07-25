@@ -42,20 +42,29 @@ function removeFromSearchHistory(value) {
 
 // loadURL on Webview
 function loadURLWebView($webview, loadurl) {
-    // loadURL
-    $webview.data('loadurl', '');
-    $webview[0].loadURL(loadurl);
+    // Current url
+    let webview = $webview[0];
+    let currenturl = webview.getURL();
 
-    // Show loading overlay
-    let $tabpane = $webview.closest('.tab-pane');
-    $tabpane.LoadingOverlay('show', {
-        text: "Loading..."
-    });
+    // Verify loadurl changed
+    if (currenturl.startsWith(loadurl)) {
+        $webview.data('loadurl', '');
+    } else {
+        // loadURL
+        $webview.data('loadurl', '');
+        webview.loadURL(loadurl);
 
-    // Hide loading overlay after 15s
-    setTimeout(() => {
-        $tabpane.LoadingOverlay('hide');
-    }, 15000);
+        // Show loading overlay
+        let $tabpane = $webview.closest('.tab-pane');
+        $tabpane.LoadingOverlay('show', {
+            text: "Loading..."
+        });
+
+        // Hide loading overlay after 15s
+        setTimeout(() => {
+            $tabpane.LoadingOverlay('hide');
+        }, 15000);
+    } 
 }
 
 // Set webviews to search input value
@@ -75,8 +84,8 @@ function setWebviews(searchinputvalue) {
         let url = eval('`' + sitesjson[key].url + '`;');
         let divid = sitesjson[key].divid;
 
-        // Activate webview link
-        let $webviewlink = $(`#${divid}-webview-link`);
+        // Activate webview open in external browser
+        let $webviewlink = $(`#${divid}-open-in-external-browser`);
         $webviewlink.removeClass('disabled');
         $webviewlink.prop('href', url);
 
@@ -117,11 +126,11 @@ $(document).ready(() => {
             '<div class="row py-2">' +
             '<div class="col-12">' +
             '<div class="btn-group btn-group-sm mr-2" role="group" aria-label="first group">' +
-            `<a id="${divid}-webview-link" role="button" href="./blank.html" target="_blank" class="btn btn-primary open-in-browser disabled" title="Open In External Browser" aria-disabled="true">Open In External Browser</a>` +
+            `<button id="${divid}-open-in-external-browser" type="button" class="btn btn-primary disabled" title="Open In External Browser" data-webviewid="#${divid}-webview">Open In External Browser</button>` +
             '</div>' +
             '<div class="btn-group btn-group-sm" role="group" aria-label="second group">' +
-            `<button id="${divid}-back-button" type="button" class="btn btn-outline-info disabled" title="Back" data-value="${divid}-webview"><i class="fas fa-arrow-left"></i></button>` +
-            `<button id="${divid}-forward-button" type="button" class="btn btn-outline-info disabled" title="Forward" data-value="${divid}-webview"><i class="fas fa-arrow-right"></i></button>` +
+            `<button id="${divid}-back-button" type="button" class="btn btn-outline-info disabled" title="Back" data-webviewid="#${divid}-webview"><i class="fas fa-arrow-left"></i></button>` +
+            `<button id="${divid}-forward-button" type="button" class="btn btn-outline-info disabled" title="Forward" data-webviewid="#${divid}-webview"><i class="fas fa-arrow-right"></i></button>` +
             '</div>' +
             '</div>' +
             '</div>' +
@@ -199,20 +208,28 @@ $(document).ready(() => {
     // Html webview history back button
     $('button[id$=back-button]').click((event) => {
         let $target = $(event.target).is('button') ? $(event.target) : $(event.target).parent();
-        let webviewid = $target.data('value');
-        let webview = $(`#${webviewid}`)[0];
+        let webviewid = $target.data('webviewid');
+        let webview = $(webviewid)[0];
         webview.goBack();
     });
 
     // Html webview history forward button
     $('button[id$=forward-button]').click((event) => {
         let $target = $(event.target).is('button') ? $(event.target) : $(event.target).parent();
-        let webviewid = $target.data('value');
-        let webview = $(`#${webviewid}`)[0];
+        let webviewid = $target.data('webviewid');
+        let webview = $(webviewid)[0];
         webview.goForward();
     });
 
-    // Open External Click
+    // Html webview open in external browser
+    $('button[id$=open-in-external-browser]').click((event) => {
+        event.preventDefault();
+        let webviewid = $(event.target).data('webviewid');
+        let webview = $(webviewid)[0];
+        shell.openExternal(webview.getURL());
+    });
+
+    // Open external click
     $('.open-in-browser').click((event) => {
         event.preventDefault();
         shell.openExternal(event.target.href);
